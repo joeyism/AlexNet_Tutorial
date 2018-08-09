@@ -2,7 +2,7 @@ import tensorflow as tf
 
 n_classes = 10 # <-- newly added constant 
 
-image_size = 224
+image_size = 32
 input_images = tf.placeholder(tf.float32,
                               shape=[None, image_size, image_size, 3], 
                               name="input_images")
