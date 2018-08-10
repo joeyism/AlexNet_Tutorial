@@ -1,10 +1,10 @@
 import tensorflow as tf
 
-n_classes = 10 # <-- newly added constant 
+n_classes = 10 # <-- newly added constant
 
-image_size = 224
+image_size = 32
 input_images = tf.placeholder(tf.float32,
-                              shape=[None, image_size, image_size, 3], 
+                              shape=[None, image_size, image_size, 3],
                               name="input_images")
 
 # First CONV layer
@@ -29,7 +29,7 @@ pooled_conv1 = tf.nn.max_pool(lrn1,
                               padding="SAME",
                               name="pool1")
 
-# Second CONV Layer 
+# Second CONV Layer
 kernel = tf.Variable(tf.truncated_normal([5, 5, 96, 256],
                                          dtype=tf.float32,
                                          stddev=1e-1),
