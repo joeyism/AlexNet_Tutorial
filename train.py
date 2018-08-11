@@ -34,3 +34,14 @@ with tf.Session() as sess:
                             model.input_images: inp,
                             y: out})
 
+        acc = sess.run(accuracy,
+                       feed_dict={
+                           model.input_images: inp,
+                           y: out})
+
+        loss = sess.run(cost,
+                        feed_dict={
+                            model.input_images: inp,
+                            y: out})
+
+        print("Acc: {} Loss: {}".format(acc, loss))
