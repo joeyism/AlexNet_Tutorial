@@ -22,8 +22,6 @@ init = tf.initialize_all_variables()
 
 with tf.Session() as sess:
     sess.run(init)
-    acc = 0
-    loss = 0
     for epoch in range(no_of_epochs):
         for batch in tqdm(cifar.batches,
                           desc="Epoch {}".format(epoch),
