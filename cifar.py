@@ -1,5 +1,7 @@
+import numpy as np
 import pickle
 import os
+import math
 
 
 def __extract_file__(fname):

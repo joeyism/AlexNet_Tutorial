@@ -1,4 +1,5 @@
 from cifar import Cifar
+from tqdm import tqdm
 import tensorflow as tf
 import model
 import helper
@@ -24,26 +25,14 @@ with tf.Session() as sess:
     acc = 0
     loss = 0
     for epoch in range(no_of_epochs):
-            for batch in tqdm(cifar.batches,
+        for batch in tqdm(cifar.batches,
                           desc="Epoch {}".format(epoch),
                           unit="batch"):
 
-        inp, out = helper.transform_to_input_output(batch, dim=model.n_classes)
+            inp, out = helper.transform_to_input_output(batch, dim=model.n_classes)
 
-        merge = tf.summary.merge_all()
-        summary, _ = sess.run([merge, optimizer],
-                    feed_dict={
-                        model.input_images: inp,
-                        y: out})
-
-        acc = sess.run(accuracy,
-                       feed_dict={
-                           model.input_images: inp,
-                           y: out})
-
-        loss = sess.run(cost,
+            sess.run([optimizer],
                         feed_dict={
                             model.input_images: inp,
                             y: out})
 
-        print("Acc: {} Loss: {}".format(acc, loss))
