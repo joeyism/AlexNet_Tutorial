@@ -58,3 +58,5 @@ with tf.Session() as sess:
                             y: out})
 
         print("Acc: {} Loss: {}".format(acc, loss))
+
+        saver.save("saved_model/alexnet.ckpt")
