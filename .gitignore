@@ -2,3 +2,4 @@ cifar-10-python.tar.gz
 data
 __pycache__
 logs/
+saved_model/

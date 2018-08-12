@@ -59,4 +59,13 @@ with tf.Session() as sess:
 
         print("Acc: {} Loss: {}".format(acc, loss))
 
-        saver.save("saved_model/alexnet.ckpt")
+        inp_test, out_test = helper.transform_to_input_output(cifar.test_set,
+                                                        dim=model.n_classes)
+
+        test_acc = sess.run([accuracy], 
+                feed_dict={ 
+                    model.input_images: inp_test,
+                    y: out_test })
+        print("Test Acc: {}".format(test_acc))
+
+        saver.save(sess, "saved_model/alexnet.ckpt")
