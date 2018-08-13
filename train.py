@@ -44,8 +44,6 @@ with tf.Session() as sess:
                             model.input_images: inp,
                             y: out})
 
-            writer.add_summary(summary, i)
-            i = i + 1
 
         acc = sess.run(accuracy,
                        feed_dict={
@@ -56,7 +54,10 @@ with tf.Session() as sess:
                         feed_dict={
                             model.input_images: inp,
                             y: out})
-
+        
+        writer.add_summary(summary, i)
+        i = i + 1
+            
         print("Acc: {} Loss: {}".format(acc, loss))
 
         inp_test, out_test = helper.transform_to_input_output(cifar.test_set,
