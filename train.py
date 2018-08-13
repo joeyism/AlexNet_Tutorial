@@ -38,22 +38,16 @@ with tf.Session() as sess:
 
             inp, out = helper.transform_to_input_output(batch, dim=model.n_classes)
 
-            merge = tf.summary.merge_all()
-            summary, _ = sess.run([merge, optimizer],
+            sess.run([optimizer],
                         feed_dict={
                             model.input_images: inp,
                             y: out})
 
-
-        acc = sess.run(accuracy,
+        merge = tf.summary.merge_all()
+        acc, loss, summary = sess.run([accuracy, cost, merge],
                        feed_dict={
                            model.input_images: inp,
                            y: out})
-
-        loss = sess.run(cost,
-                        feed_dict={
-                            model.input_images: inp,
-                            y: out})
         
         writer.add_summary(summary, i)
         i = i + 1
