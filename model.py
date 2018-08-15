@@ -8,13 +8,20 @@ input_images = tf.placeholder(tf.float32,
                               shape=[None, image_size, image_size, 3],
                               name="input_images")
 
+# Network Size
+first_conv_size = 96
+second_conv_size = 256
+third_conv_size = 384
+fourth_conv_size = 384
+fifth_conv_size = 256
+
 # First CONV layer
-kernel = tf.Variable(tf.truncated_normal([11, 11, 3, 96],
+kernel = tf.Variable(tf.truncated_normal([11, 11, 3, first_conv_size],
                                          dtype=tf.float32,
                                          stddev=1e-1),
                      name="conv1_weights")
 conv = tf.nn.conv2d(input_images, kernel, [1, 4, 4, 1], padding="SAME")
-bias = tf.Variable(tf.truncated_normal([96]))
+bias = tf.Variable(tf.truncated_normal([first_conv_size]))
 conv_with_bias = tf.nn.bias_add(conv, bias)
 conv1 = tf.nn.relu(conv_with_bias, name="conv1")
 
@@ -31,12 +38,12 @@ pooled_conv1 = tf.nn.max_pool(lrn1,
                               name="pool1")
 
 # Second CONV Layer
-kernel = tf.Variable(tf.truncated_normal([5, 5, 96, 256],
+kernel = tf.Variable(tf.truncated_normal([5, 5, first_conv_size, second_conv_size],
                                          dtype=tf.float32,
                                          stddev=1e-1),
                      name="conv2_weights")
 conv = tf.nn.conv2d(pooled_conv1, kernel, [1, 4, 4, 1], padding="SAME")
-bias = tf.Variable(tf.truncated_normal([256]), name="conv2_bias")
+bias = tf.Variable(tf.truncated_normal([second_conv_size]), name="conv2_bias")
 conv_with_bias = tf.nn.bias_add(conv, bias)
 conv2 = tf.nn.relu(conv_with_bias, name="conv2")
 lrn2 = tf.nn.lrn(conv2,
@@ -52,37 +59,37 @@ pooled_conv2 = tf.nn.max_pool(lrn2,
                               name="pool2")
 
 # Third CONV layer
-kernel = tf.Variable(tf.truncated_normal([3, 3, 256, 384],
+kernel = tf.Variable(tf.truncated_normal([3, 3, second_conv_size, third_conv_size],
                                          dtype=tf.float32,
                                          stddev=1e-1),
                      name="conv3_weights")
 conv = tf.nn.conv2d(pooled_conv2, kernel, [1, 1, 1, 1], padding="SAME")
-bias = tf.Variable(tf.truncated_normal([384]), name="conv3_bias")
+bias = tf.Variable(tf.truncated_normal([third_conv_size]), name="conv3_bias")
 conv_with_bias = tf.nn.bias_add(conv, bias)
 conv3 = tf.nn.relu(conv_with_bias, name="conv3")
 
 # Fourth CONV layer
-kernel = tf.Variable(tf.truncated_normal([3, 3, 384, 384],
+kernel = tf.Variable(tf.truncated_normal([3, 3, third_conv_size, fourth_conv_size],
                                          dtype=tf.float32,
                                          stddev=1e-1),
                      name="conv4_weights")
 conv = tf.nn.conv2d(conv3, kernel, [1, 1, 1, 1], padding="SAME")
-bias = tf.Variable(tf.truncated_normal([384]), name="conv4_bias")
+bias = tf.Variable(tf.truncated_normal([fourth_conv_size]), name="conv4_bias")
 conv_with_bias = tf.nn.bias_add(conv, bias)
 conv4 = tf.nn.relu(conv_with_bias, name="conv4")
 
 # Fifth CONV Layer
-kernel = tf.Variable(tf.truncated_normal([3, 3, 384, 256],
+kernel = tf.Variable(tf.truncated_normal([3, 3, fourth_conv_size, fifth_conv_size],
                                          dtype=tf.float32,
                                          stddev=1e-1),
                      name="conv5_weights")
 conv = tf.nn.conv2d(conv4, kernel, [1, 1, 1, 1], padding="SAME")
-bias = tf.Variable(tf.truncated_normal([256]), name="conv5_bias")
+bias = tf.Variable(tf.truncated_normal([fifth_conv_size]), name="conv5_bias")
 conv_with_bias = tf.nn.bias_add(conv, bias)
 conv5 = tf.nn.relu(conv_with_bias, name="conv5")
 
 # Fully Connected Layers
-fc_size = 256
+fc_size = fifth_conv_size
 conv5 = tf.layers.flatten(conv5) # tf.flatten
 weights = tf.Variable(tf.truncated_normal([fc_size, fc_size]), name="fc1_weights")
 bias = tf.Variable(tf.truncated_normal([fc_size]), name="fc1_bias")
