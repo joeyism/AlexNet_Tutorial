@@ -10,6 +10,7 @@ n_classes = 10
 learning_rate = 0.001
 batch_size = 16
 no_of_epochs = 100
+no_of_test_splits = 100
 
 
 conv5 = tf.layers.flatten(pretrained.maxpool5) # tf.flatten
@@ -54,7 +55,6 @@ with tf.Session() as sess:
 
         print("Acc: {} Loss: {}".format(acc, loss))
 
-        no_of_test_splits = 50
         inp_test, out_test = cifar.padded_test_set
         inp_test = np.split(inp_test, no_of_test_splits)
         out_test = np.split(out_test, no_of_test_splits)
