@@ -67,5 +67,3 @@ class Cifar(object):
     def create_padded_batches(self, new_size=(227, 227), dim=1000):
         self.padded_batches = [helper.transform_to_input_output_and_pad(batch, new_size=new_size, dim=dim) for batch in self.batches]
         self.padded_test_set = helper.transform_to_input_output_and_pad(self.test_set, new_size=new_size, dim=dim)
-        del self.batches, self.test_set, self.__res__
-        gc.collect()

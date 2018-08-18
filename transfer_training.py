@@ -1,6 +1,7 @@
 from cifar import Cifar
 from tqdm import tqdm
 import tensorflow as tf
+import numpy as np
 import pretrained
 import helper
 
@@ -36,8 +37,8 @@ with tf.Session() as sess:
 
     for epoch in range(no_of_epochs):
         for batch, out in tqdm(cifar.padded_batches,
-                          desc="Epoch {}".format(epoch),
-                          unit="batch"):
+                desc="Epoch {}".format(epoch),
+                unit=" batch "):
 
             sess.run([optimizer],
                         feed_dict={
@@ -53,11 +54,23 @@ with tf.Session() as sess:
 
         print("Acc: {} Loss: {}".format(acc, loss))
 
+        no_of_test_splits = 50
         inp_test, out_test = cifar.padded_test_set
+        inp_test = np.split(inp_test, no_of_test_splits)
+        out_test = np.split(out_test, no_of_test_splits)
 
-        test_acc = sess.run([accuracy],
-                feed_dict={
-                    pretrained.x: inp_test,
-                    y: out_test },
-                options=run_options)
+        total_acc = 0
+        for each_inp_test, each_out_test in tqdm(zip(inp_test, out_test),
+                desc="Test".format(epoch),
+                unit=" batch ",
+                total=no_of_test_splits):
+
+            each_test_acc = sess.run(accuracy,
+                    feed_dict={
+                        pretrained.x: each_inp_test,
+                        y: each_out_test },
+                    options=run_options)
+            total_acc = total_acc + each_test_acc
+
+        test_acc = total_acc / no_of_test_splits
         print("Test Acc: {}".format(test_acc))
