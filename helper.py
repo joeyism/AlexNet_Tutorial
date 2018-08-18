@@ -32,7 +32,7 @@ def add_padding(image, new_size):
     return np.array(new_im)
 
 
-def transform_to_input_output_and_pad(input_output, new_size=(277, 277), dim=1000):
+def transform_to_input_output_and_pad(input_output, new_size=(227, 227), dim=1000):
     inp, out = transform_to_input_output(input_output, dim=dim)
     return np.array([add_padding(i, new_size) for i in inp]), out
 

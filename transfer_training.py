@@ -26,55 +26,38 @@ optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 correct_pred = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-tf.summary.histogram("cost", cost)
-tf.summary.histogram("accuracy", accuracy)
-
 cifar = Cifar(batch_size=batch_size)
+cifar.create_padded_batches(new_size=(227, 227), dim=10)
 
 init = tf.initialize_all_variables()
-
-saver = tf.train.Saver()
-i = 0
 with tf.Session() as sess:
     sess.run(init)
-
-    reader = tf.WholeFileReader()
-    writer = tf.summary.FileWriter( './logs/', sess.graph)
+    run_options = tf.RunOptions(report_tensor_allocations_upon_oom = True)
 
     for epoch in range(no_of_epochs):
-        for batch in tqdm(cifar.batches,
+        for batch, out in tqdm(cifar.padded_batches,
                           desc="Epoch {}".format(epoch),
                           unit="batch"):
 
-            inp, out = helper.transform_to_input_output_and_pad(batch, dim=n_classes)
-
             sess.run([optimizer],
                         feed_dict={
-                            pretrained.x: inp,
-                            y: out,
-                            })
+                            pretrained.x: batch,
+                            y: out },
+                        options=run_options)
 
-        merge = tf.summary.merge_all()
-        acc, loss, summary = sess.run([accuracy, cost, merge],
+        acc, loss = sess.run([accuracy, cost],
                        feed_dict={
-                           pretrained.x: inp,
-                           y: out,
-                           })
-
-        writer.add_summary(summary, i)
-        i = i + 1
+                           pretrained.x: batch,
+                           y: out },
+                       options=run_options)
 
         print("Acc: {} Loss: {}".format(acc, loss))
 
-        inp_test, out_test = helper.transform_to_input_output_and_pad(cifar.test_set,
-                                                        dim=n_classes)
+        inp_test, out_test = cifar.padded_test_set
 
         test_acc = sess.run([accuracy],
                 feed_dict={
                     pretrained.x: inp_test,
-                    y: out_test,
-                    })
+                    y: out_test },
+                options=run_options)
         print("Test Acc: {}".format(test_acc))
-
-        saver.save(sess, "saved_model/alexnet.ckpt")
-

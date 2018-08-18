@@ -9,11 +9,11 @@ input_images = tf.placeholder(tf.float32,
                               name="input_images")
 
 # Network Size
-first_conv_size = 96
-second_conv_size = 256
-third_conv_size = 384
-fourth_conv_size = 384
-fifth_conv_size = 256
+first_conv_size = 24
+second_conv_size = 32
+third_conv_size = 48
+fourth_conv_size = 48
+fifth_conv_size = 16
 
 # First CONV layer
 kernel = tf.Variable(tf.truncated_normal([11, 11, 3, first_conv_size],
@@ -91,18 +91,19 @@ conv5 = tf.nn.relu(conv_with_bias, name="conv5")
 # Fully Connected Layers
 fc_size = fifth_conv_size
 conv5 = tf.layers.flatten(conv5) # tf.flatten
-weights = tf.Variable(tf.truncated_normal([fc_size, fc_size]), name="fc1_weights")
-bias = tf.Variable(tf.truncated_normal([fc_size]), name="fc1_bias")
-fc1 = tf.matmul(conv5, weights) + bias
-fc1 = tf.nn.relu(fc1, name="fc1")
-fc1 = tf.nn.dropout(fc1, dropout)
 
-weights = tf.Variable(tf.truncated_normal([fc_size, fc_size]), name="fc2_weights")
-bias = tf.Variable(tf.truncated_normal([fc_size]), name="fc2_bias")
-fc2 = tf.matmul(fc1, weights) + bias
-fc2 = tf.nn.relu(fc2, name="fc2")
-fc2 = tf.nn.dropout(fc2, dropout)
+#weights = tf.Variable(tf.truncated_normal([fc_size, fc_size]), name="fc1_weights")
+#bias = tf.Variable(tf.truncated_normal([fc_size]), name="fc1_bias")
+#fc1 = tf.matmul(conv5, weights) + bias
+#fc1 = tf.nn.relu(fc1, name="fc1")
+#fc1 = tf.nn.dropout(fc1, dropout)
+
+#weights = tf.Variable(tf.truncated_normal([fc_size, fc_size]), name="fc2_weights")
+#bias = tf.Variable(tf.truncated_normal([fc_size]), name="fc2_bias")
+#fc2 = tf.matmul(fc1, weights) + bias
+#fc2 = tf.nn.relu(fc2, name="fc2")
+#fc2 = tf.nn.dropout(fc2, dropout)
 
 weights = tf.Variable(tf.zeros([fc_size, n_classes]), name="output_weight")
 bias = tf.Variable(tf.truncated_normal([n_classes]), name="output_bias")
-out = tf.matmul(fc2, weights) + bias
+out = tf.matmul(conv5, weights) + bias

@@ -6,7 +6,7 @@ import helper
 
 learning_rate = 0.001
 batch_size = 16
-no_of_epochs = 10
+no_of_epochs = 100
 dropout_rate = 0.5
 
 y = tf.placeholder(tf.float32, [None, model.n_classes])
