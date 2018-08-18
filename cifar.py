@@ -15,9 +15,9 @@ def __unflatten_image__(img_flat):
     img_G = img_flat[1024:2048].reshape((32, 32))
     img_B = img_flat[2048:3072].reshape((32, 32))
     img = np.dstack((img_R, img_G, img_B))
-    return img
+    return img/255
 
-  
+
 def __extract_reshape_file__(fname):
     res = []
     d = __extract_file__(fname)
@@ -26,15 +26,15 @@ def __extract_reshape_file__(fname):
     for image, label in zip(images, labels):
         res.append((__unflatten_image__(image), label))
     return res
-  
-  
+
+
 def get_images_from(dir):
     files = [f for f in os.listdir(dir) if f.startswith("data_batch")]
     res = []
     for f in files:
         res = res + __extract_reshape_file__(os.path.join(dir, f))
     return res
-    
+
 
 class Cifar(object):
 
