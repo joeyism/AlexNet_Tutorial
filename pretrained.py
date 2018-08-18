@@ -127,5 +127,3 @@ fc8 = tf.nn.xw_plus_b(fc7, fc8W, fc8b)
 #prob
 #softmax(name='prob'))
 prob = tf.nn.softmax(fc8)
-
-
