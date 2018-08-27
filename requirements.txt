@@ -1,3 +1,7 @@
 tqdm
 numpy
 Pillow
+Cython
+tensornets
+h5py
+scikit-image

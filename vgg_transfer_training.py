@@ -1,40 +1,36 @@
 from cifar import Cifar
 from tqdm import tqdm
+import tensornets as nets
 import tensorflow as tf
 import numpy as np
-import pretrained
 import helper
 
-
-n_classes = 10
 learning_rate = 0.00001
 batch_size = 16
 no_of_epochs = 100
+n_classes = 10
 no_of_test_splits = 100
 image_size = 224
 
+inputs = tf.placeholder(tf.float32, [None, image_size, image_size, 3])
+outputs = tf.placeholder(tf.float32, [None, n_classes])
 
-conv5 = tf.layers.flatten(pretrained.maxpool5) # tf.flatten
-
-
-weights = tf.Variable(tf.zeros([9216, n_classes]), name="output_weight")
-bias = tf.Variable(tf.truncated_normal([n_classes]), name="output_bias")
-out = tf.matmul(conv5, weights) + bias
-
-y = tf.placeholder(tf.float32, [None, n_classes])
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
-    logits=out,
-    labels=y))
+vgg = nets.VGG19(inputs, is_training=True, classes=n_classes)
+model = tf.identity(vgg, name='logits')
+cost = tf.losses.softmax_cross_entropy(outputs, vgg)
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
-correct_pred = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
+correct_pred = tf.equal(tf.argmax(model, 1), tf.argmax(outputs, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+vgg.print_outputs()
+vgg.print_summary()
+
 
 cifar = Cifar(batch_size=batch_size)
 cifar.create_resized_test_set(dim=n_classes)
 
-init = tf.initialize_all_variables()
 with tf.Session() as sess:
-    sess.run(init)
+    sess.run(tf.global_variables_initializer())
+    sess.run(vgg.pretrained())
     run_options = tf.RunOptions(report_tensor_allocations_upon_oom = True)
 
     for epoch in range(no_of_epochs):
@@ -43,22 +39,21 @@ with tf.Session() as sess:
                 unit=" batch "):
             this_batch = cifar.batch(i)
             input_batch, out = helper.reshape_batch(this_batch, (image_size, image_size), n_classes)
-
             sess.run([optimizer],
                         feed_dict={
-                            pretrained.x: this_batch,
-                            y: out },
+                            inputs: input_batch,
+                            outputs: out },
                         options=run_options)
 
         acc, loss = sess.run([accuracy, cost],
                        feed_dict={
-                           pretrained.x: this_batch,
-                           y: out },
+                            inputs: input_batch,
+                            outputs: out },
                        options=run_options)
 
-        print("Acc: {} Loss: {}".format(acc, loss))
+        print("Last Batch Acc: {} Loss: {}".format(acc, loss))
 
-        inp_test, out_test = cifar.padded_test_set
+        inp_test, out_test = cifar.test_set
         inp_test = np.split(inp_test, no_of_test_splits)
         out_test = np.split(out_test, no_of_test_splits)
 
@@ -70,8 +65,8 @@ with tf.Session() as sess:
 
             each_test_acc = sess.run(accuracy,
                     feed_dict={
-                        pretrained.x: each_inp_test,
-                        y: each_out_test },
+                        inputs: each_inp_test,
+                        outputs: each_out_test},
                     options=run_options)
             total_acc = total_acc + each_test_acc
 
