@@ -19,14 +19,13 @@ conv5 = tf.layers.flatten(pretrained.maxpool5) # tf.flatten
 
 weights = tf.Variable(tf.zeros([9216, n_classes]), name="output_weight")
 bias = tf.Variable(tf.truncated_normal([n_classes]), name="output_bias")
-out = tf.matmul(conv5, weights) + bias
+model = tf.matmul(conv5, weights) + bias
 
-y = tf.placeholder(tf.float32, [None, n_classes])
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
-    logits=out,
-    labels=y))
+outputs = tf.placeholder(tf.float32, [None, n_classes])
+
+cost = tf.losses.softmax_cross_entropy(outputs, model)
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
-correct_pred = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
+correct_pred = tf.equal(tf.argmax(model, 1), tf.argmax(outputs, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 cifar = Cifar(batch_size=batch_size)
@@ -44,21 +43,22 @@ with tf.Session() as sess:
             this_batch = cifar.batch(i)
             input_batch, out = helper.reshape_batch(this_batch, (image_size, image_size), n_classes)
 
+            
             sess.run([optimizer],
                         feed_dict={
-                            pretrained.x: this_batch,
-                            y: out },
+                            pretrained.x: input_batch,
+                            outputs: out },
                         options=run_options)
 
         acc, loss = sess.run([accuracy, cost],
                        feed_dict={
-                           pretrained.x: this_batch,
-                           y: out },
+                           pretrained.x: input_batch,
+                           outputs: out },
                        options=run_options)
 
         print("Acc: {} Loss: {}".format(acc, loss))
 
-        inp_test, out_test = cifar.padded_test_set
+        inp_test, out_test = cifar.test_set
         inp_test = np.split(inp_test, no_of_test_splits)
         out_test = np.split(out_test, no_of_test_splits)
 
@@ -71,7 +71,7 @@ with tf.Session() as sess:
             each_test_acc = sess.run(accuracy,
                     feed_dict={
                         pretrained.x: each_inp_test,
-                        y: each_out_test },
+                        outputs: each_out_test },
                     options=run_options)
             total_acc = total_acc + each_test_acc
 
